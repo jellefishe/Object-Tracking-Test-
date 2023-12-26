@@ -17,13 +17,13 @@ def read_img(path, greyscale=False):
     return np.array(img).astype(np.uint8)
 
 def main():
-    # Select dataset. For this project, either 'girl' or 'head_motion'
+    # Select dataset. For my test project, either 'girl' or 'head_motion'. email me if you want to test on these 2 image fodlers
     dataset = sys.argv[1]
 
     # Number of frames. 
     num_frames = int(sys.argv[2])
 
-    # The following is our implementation of Kalman Filter
+    # The following is my implementation of Kalman Filter, go to kalman.py to see documentation
     kf = KalmanFilter()
 
     # The following is cv2 implementation of Kalman Filter. Simply uncomment lines 30-33 and comment out line 27 to use cv2 
@@ -39,7 +39,7 @@ def main():
     corrected = np.array((2, 1), np.float32)
     predicted = np.array((2, 1), np.float32)
     
-    # Open the groundtruth file, which hold the coordinates for the position of object
+    # Open the ground truth file, which hold the coordinates for the position of the object email me for these files
     groundtruth_file = open(f'{dataset}/groundtruth.txt', 'r')
     groundtruth_file = groundtruth_file.readlines()
     
@@ -50,7 +50,7 @@ def main():
 
     # Loop over each frame
     for i in range(num_frames):
-        # Name of frames in dataset vary. For other datasets, this should be changed.
+        # The names of frames in the dataset vary. For other datasets, this should be changed.
         if dataset == 'girl':
             frame = read_img(f'girl/img{i:03}.png')
             frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
@@ -61,39 +61,39 @@ def main():
         face_cascade = cv2.CascadeClassifier('facedetector.xml')
         faces = face_cascade.detectMultiScale(frame, 1.1, 4)
 
-        # if face is detected, continue using Kalman. Otherwise, go to next loop iteration until a face is detected
+        # If face is detected, continue using Kalman. Otherwise, go to the next loop iteration until a face is detected
         if isinstance(faces, np.ndarray):
-            # Draw rectangle around detected face. 
-            # w and h correspond to width and height of detected face. x and y are the top left of detected face
-            # Currently, we only detect 1 face. More than 1 face can be detected, but implmentation would need to change to apply Kalman to both
+            # Draw a rectangle around the detected face. 
+            # w and h correspond to the width and height of the detected face. x and y are the top left of the detected face
+            # Currently, we only detect 1 face. More than 1 face can be detected, but implementation would need to change to apply Kalman to both
             (x, y, w, h) = faces[0]
             # Red rectangle is detected position
             cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
             detected[0] = x
             detected[1] = y
 
-            # Use Kalman Filter get the corrected coordinates
+            # Use Kalman Filter to get the corrected coordinates
             corrected = kf.correct(detected)  
             
             # Use Kalman Filter to predict new position
             predicted = kf.predict()           
             
-            # Green rectangle are corrected postion
+            # Green rectangles are corrected position
             cv2.rectangle(frame, (int(corrected[0]), int(corrected[1])), (int(corrected[0] + w), int(corrected[1] + h)), (0,255,0), 2)
             
-            # Blue rectange is predicted position
+            # Blue rectangle is predicted position
             cv2.rectangle(frame, (int(predicted[0]), int(predicted[1])), (int(predicted[0] + w), int(predicted[1] + h)), (0,0,255), 2)
 
-            # parse groundtruth file
+            # parse ground-truth file
             gt = groundtruth_file[i]
             gt_x, gt_y, gt_w, gt_h = gt.split(",")[0], gt.split(",")[1], gt.split(",")[2], gt.split(",")[3]
             
-            # Some lines on the groundtruth file have no information. In this case, exit loop.
+            # Some lines on the ground-truth file have no information. In this case, exit loop.
             if gt_x == 'NaN' or gt_y == 'NaN' or gt_w == 'NaN' or gt_h == 'NaN':
                 cv2.destroyAllWindows()
                 break
 
-            # The following are 4 matrices created in order to compute distance
+            # The following are 4 matrices created to compute the distance
             gt_mat = np.array((int(gt_x), int(gt_y)))
             detected_mat = np.array((detected[0], detected[1]))
             corrected_mat = np.array((corrected[0][0], corrected[1][0]))
