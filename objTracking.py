@@ -78,10 +78,10 @@ def main():
             # Use Kalman Filter to predict new position
             predicted = kf.predict()           
             
-            # Green rectangles are corrected position
+            # The green rectangle is the correct position
             cv2.rectangle(frame, (int(corrected[0]), int(corrected[1])), (int(corrected[0] + w), int(corrected[1] + h)), (0,255,0), 2)
             
-            # Blue rectangle is predicted position
+            # The blue rectangle is the predicted position
             cv2.rectangle(frame, (int(predicted[0]), int(predicted[1])), (int(predicted[0] + w), int(predicted[1] + h)), (0,0,255), 2)
 
             # parse ground-truth file
@@ -99,7 +99,7 @@ def main():
             corrected_mat = np.array((corrected[0][0], corrected[1][0]))
             predicted_mat = np.array((predicted[0][0], predicted[1][0]))
 
-            # euclidean distance between groundtruth and detected/corrected/predicted
+            # Euclidean distance between ground-truth and detected/corrected/predicted
             detected_distace = np.linalg.norm(gt_mat - detected_mat)
             corrected_distance = np.linalg.norm(gt_mat - corrected_mat)
             predicted_distance = np.linalg.norm(gt_mat - predicted_mat)
@@ -109,7 +109,7 @@ def main():
             corrected_list.append(corrected_distance)
             predicted_list.append(predicted_distance)
 
-        # pop-up window for image    
+        # pop-up window for the image    
         cv2.imshow('image', frame)
        
        # Press 'q' to exit pop-up window
